@@ -227,7 +227,7 @@ class ReservationList extends Component {
   onRefresh = () => {
     let scrollPosition = 0;
     const selectedDay = this.props.selectedDay.clone();
-    const iterator = parseDate(this.props.selectedDay.clone().getTime() - 3600 * 24 * 10 * 1000);
+    const iterator = parseDate(this.props.selectedDay.clone().getTime() - 3600 * 24 * 30 * 1000);
     let reservations = [];
     for (let i = 0; i < 30; i++) {
       const res = this.getReservationsForDay(iterator, this.props);
