@@ -1,5 +1,5 @@
 const XDate = require('xdate');
-import {parseDate} from './interface';
+const {parseDate} = require('./interface');
 
 function sameMonth(a, b) {
   return (
@@ -109,7 +109,7 @@ function isDateNotInTheRange(minDate, maxDate, date) {
 }
 
 function getWeekDates(date, firstDay, format) {
-  if (date) {
+  if (date && parseDate(date).valid()) {
     const current = parseDate(date);
     const daysArray = [current];
     let dayOfTheWeek = current.getDay() - firstDay;
