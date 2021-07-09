@@ -229,7 +229,7 @@ class ReservationList extends Component {
     const selectedDay = this.props.selectedDay.clone();
     const iterator = parseDate(this.props.selectedDay.clone().getTime() - 3600 * 24 * 10 * 1000);
     let reservations = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 30; i++) {
       const res = this.getReservationsForDay(iterator, this.props);
       if (res) {
         reservations = reservations.concat(res);
