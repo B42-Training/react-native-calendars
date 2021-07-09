@@ -237,13 +237,13 @@ class ReservationList extends Component {
       iterator.addDays(1);
     }
     scrollPosition = reservations.length;
-    for (let i = 10; i < 30; i++) {
-      const res = this.getReservationsForDay(iterator, this.props);
-      if (res) {
-        reservations = reservations.concat(res);
-      }
-      iterator.addDays(1);
-    }
+    // for (let i = 10; i < 30; i++) {
+    //   const res = this.getReservationsForDay(iterator, this.props);
+    //   if (res) {
+    //     reservations = reservations.concat(res);
+    //   }
+    //   iterator.addDays(1);
+    // }
     this.setState(
       {
         reservations
