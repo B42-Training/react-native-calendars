@@ -546,9 +546,9 @@ class ExpandableCalendar extends Component<Props, State> {
   };
 
   render() {
-    const {style, hideKnob, horizontal, allowShadow, theme, ...others} = this.props;
+    const {style, hideKnob, horizontal, allowShadow, theme, disableWeekScroll, ...others} = this.props;
     const {deltaY, position, screenReaderEnabled} = this.state;
-    const isOpen = position === Positions.OPEN;
+    const isScrollEnabled = position === Positions.OPEN && !disableWeekScroll;
     const themeObject = Object.assign(this.headerStyleOverride, theme);
 
     return (
@@ -574,7 +574,7 @@ class ExpandableCalendar extends Component<Props, State> {
               onDayPress={this.onDayPress}
               onVisibleMonthsChange={this.onVisibleMonthsChange}
               pagingEnabled
-              scrollEnabled={isOpen}
+              scrollEnabled={isScrollEnabled}
               hideArrows={this.shouldHideArrows()}
               onPressArrowLeft={this.onPressArrowLeft}
               onPressArrowRight={this.onPressArrowRight}
