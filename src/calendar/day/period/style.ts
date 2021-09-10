@@ -1,12 +1,10 @@
 import {StyleSheet} from 'react-native';
-// @ts-expect-error
 import * as defaultStyle from '../../../style';
+import {Theme} from '../../../types';
 
-
-const STYLESHEET_ID = 'stylesheet.day.period';
 const FILLER_HEIGHT = 34;
 
-export default function styleConstructor(theme: any = {}) {
+export default function styleConstructor(theme: Theme = {}) {
   const appStyle = {...defaultStyle, ...theme};
   return StyleSheet.create({
     wrapper: {
@@ -57,25 +55,28 @@ export default function styleConstructor(theme: any = {}) {
     disabledText: {
       color: appStyle.textDisabledColor
     },
-    
-    quickAction: {
-      backgroundColor: 'white',
-      borderWidth: 1,
-      borderColor: '#c1e4fe'
+    inactiveText: {
+      color: appStyle.textInactiveColor
     },
-    quickActionText: {
-      marginTop: 6,
-      color: appStyle.textColor
-    },
-    firstQuickAction: {
-      backgroundColor: appStyle.textLinkColor
-    },
-    firstQuickActionText: {
-      color: 'white'
-    },
-    naText: {
-      color: '#b6c1cd'
-    },
-    ...(theme[STYLESHEET_ID] || {})
+
+    // quickAction: {
+    //   backgroundColor: 'white',
+    //   borderWidth: 1,
+    //   borderColor: '#c1e4fe'
+    // },
+    // quickActionText: {
+    //   marginTop: 6,
+    //   color: appStyle.textColor
+    // },
+    // firstQuickAction: {
+    //   backgroundColor: appStyle.textLinkColor
+    // },
+    // firstQuickActionText: {
+    //   color: 'white'
+    // },
+    // naText: {
+    //   color: '#b6c1cd'
+    // },
+    ...(theme.stylesheet?.day?.period || {})
   });
 }
