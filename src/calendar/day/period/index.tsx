@@ -1,38 +1,41 @@
-import _ from 'lodash';
+import isEqual from 'lodash/isEqual';
 import PropTypes from 'prop-types';
 
 import React, {Component} from 'react';
-import {TouchableWithoutFeedback, Text, View} from 'react-native';
+import {TouchableWithoutFeedback, Text, View, ViewStyle} from 'react-native';
+
 // @ts-expect-error
 import {shouldUpdate} from '../../../component-updater';
-// @ts-expect-error
 import * as defaultStyle from '../../../style';
 import styleConstructor from './style';
 import Dot from '../dot';
+import {MarkingProps} from '../marking';
+import {Theme, DayState} from '../../../types';
 
 interface PeriodDayProps {
-  state?: 'selected' | 'disabled' | 'today' | '';
-  marking?: any;
-  theme?: Object;
-  onPress?: (date?: Object) => void;
-  onLongPress?: (date?: Object) => void;
-  date?: Object;
+  state?: DayState;
+  marking?: MarkingProps;
+  theme?: Theme;
+  onPress?: (date?: Date) => void;
+  onLongPress?: (date?: Date) => void;
+  date?: Date;
   accessibilityLabel?: string;
   testID?: string;
 }
 
-export default class PeriodDay extends Component<PeriodDayProps>{
+export default class PeriodDay extends Component<PeriodDayProps> {
   static displayName = 'IGNORE';
 
   static propTypes = {
-    state: PropTypes.oneOf(['selected', 'disabled', 'today', '']),
+    state: PropTypes.oneOf(['selected', 'disabled', 'inactive', 'today', '']),
     marking: PropTypes.any,
     theme: PropTypes.object,
     onPress: PropTypes.func,
     onLongPress: PropTypes.func,
     date: PropTypes.object
   };
-  theme: any;
+
+  theme: Theme;
   style: any;
   markingStyle: any;
 
@@ -41,8 +44,7 @@ export default class PeriodDay extends Component<PeriodDayProps>{
 
     this.theme = {...defaultStyle, ...(props.theme || {})};
     this.style = styleConstructor(props.theme);
-
-    this.markingStyle = this.getDrawingStyle(props.marking || []);
+    this.markingStyle = this.getDrawingStyle(props.marking);
   }
 
   onPress = () => {
@@ -55,7 +57,7 @@ export default class PeriodDay extends Component<PeriodDayProps>{
 
   shouldComponentUpdate(nextProps: PeriodDayProps) {
     const newMarkingStyle = this.getDrawingStyle(nextProps.marking);
-    if (!_.isEqual(this.markingStyle, newMarkingStyle)) {
+    if (!isEqual(this.markingStyle, newMarkingStyle)) {
       this.markingStyle = newMarkingStyle;
       return true;
     }
@@ -63,7 +65,8 @@ export default class PeriodDay extends Component<PeriodDayProps>{
     return shouldUpdate(this.props, nextProps, ['children', 'state', 'marking', 'onPress', 'onLongPress', 'date']);
   }
 
-  getDrawingStyle(marking: any) {
+  // TODO: refactor to use MarkingProps as the type
+  getDrawingStyle(marking?: any) {
     const defaultStyle = {textStyle: {color: undefined}, containerStyle: {}};
 
     if (!marking) {
@@ -72,35 +75,35 @@ export default class PeriodDay extends Component<PeriodDayProps>{
 
     if (marking.disabled) {
       defaultStyle.textStyle.color = this.style.disabledText.color;
+    } else if (marking.inactive) {
+      defaultStyle.textStyle.color = this.style.inactiveText.color;
     } else if (marking.selected) {
       defaultStyle.textStyle.color = this.style.selectedText.color;
     }
 
     const resultStyle = [marking].reduce((prev, next) => {
-      if (next.quickAction) {
-        //???
-        if (next.first || next.last) {
-          prev.containerStyle = this.style.firstQuickAction;
-          prev.textStyle = this.style.firstQuickActionText;
-          if (next.endSelected && next.first && !next.last) {
-            prev.rightFillerStyle = '#c1e4fe';
-          } else if (next.endSelected && next.last && !next.first) {
-            prev.leftFillerStyle = '#c1e4fe';
-          }
-        } else if (!next.endSelected) {
-          prev.containerStyle = this.style.quickAction;
-          prev.textStyle = this.style.quickActionText;
-        } else if (next.endSelected) {
-          prev.leftFillerStyle = '#c1e4fe';
-          prev.rightFillerStyle = '#c1e4fe';
-        }
-        return prev;
-      }
+      // if (next.quickAction) { //???
+      //   if (next.first || next.last) {
+      //     prev.containerStyle = this.style.firstQuickAction;
+      //     prev.textStyle = this.style.firstQuickActionText;
+      //     if (next.endSelected && next.first && !next.last) {
+      //       prev.rightFillerStyle = '#c1e4fe';
+      //     } else if (next.endSelected && next.last && !next.first) {
+      //       prev.leftFillerStyle = '#c1e4fe';
+      //     }
+      //   } else if (!next.endSelected) {
+      //     prev.containerStyle = this.style.quickAction;
+      //     prev.textStyle = this.style.quickActionText;
+      //   } else if (next.endSelected) {
+      //     prev.leftFillerStyle = '#c1e4fe';
+      //     prev.rightFillerStyle = '#c1e4fe';
+      //   }
+      //   return prev;
+      // }
 
-      if (next.status === 'NotAvailable') {
-        //???
-        prev.textStyle = this.style.naText;
-      }
+      // if (next.status === 'NotAvailable') { //???
+      //   prev.textStyle = this.style.naText;
+      // }
 
       const color = next.color;
       if (next.startingDay) {
@@ -122,7 +125,9 @@ export default class PeriodDay extends Component<PeriodDayProps>{
         defaultStyle.containerStyle = marking.customContainerStyle;
       }
       return prev;
+
     }, defaultStyle);
+
     return resultStyle;
   }
 
@@ -130,13 +135,16 @@ export default class PeriodDay extends Component<PeriodDayProps>{
     const {state, marking} = this.props;
     const containerStyle = [this.style.base];
     const textStyle = [this.style.text];
-    let leftFillerStyle = {backgroundColor: undefined};
-    let rightFillerStyle = {backgroundColor: undefined};
+    let leftFillerStyle: ViewStyle = {backgroundColor: undefined};
+    let rightFillerStyle: ViewStyle = {backgroundColor: undefined};
     let fillerStyle = {};
     let fillers;
 
+    // TODO: refactor - move all styling logic out of render()
     if (state === 'disabled') {
       textStyle.push(this.style.disabledText);
+    } else if (state === 'inactive') {
+      textStyle.push(this.style.inactiveText);
     } else if (state === 'today') {
       containerStyle.push(this.style.today);
       textStyle.push(this.style.todayText);
@@ -198,6 +206,7 @@ export default class PeriodDay extends Component<PeriodDayProps>{
         });
       }
 
+      // TODO: refactor - move all fillers logic out of render()
       fillers = (
         <View style={[this.style.fillers, fillerStyle]}>
           <View style={[this.style.leftFiller, leftFillerStyle]} />
@@ -208,6 +217,7 @@ export default class PeriodDay extends Component<PeriodDayProps>{
 
     const {theme, accessibilityLabel, testID} = this.props;
 
+    // TODO: refactor - allow feedback for unmarked days
     return (
       <TouchableWithoutFeedback
         testID={testID}

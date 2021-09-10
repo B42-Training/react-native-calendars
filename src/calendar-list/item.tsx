@@ -1,12 +1,12 @@
+import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
+
 import React, {Component} from 'react';
 import {Text, View} from 'react-native';
-import PropTypes from 'prop-types';
 
+import {Theme} from '../types';
 // @ts-expect-error
 import {extractComponentProps} from '../component-updater';
-
-// @ts-expect-error
 import Calendar, {CalendarProps} from '../calendar';
 import styleConstructor from './style';
 
@@ -15,7 +15,8 @@ export type CalendarListItemProps = CalendarProps & {
   calendarWidth?: number;
   calendarHeight?: number;
   horizontal?: boolean;
-  theme?: any;
+  theme?: Theme;
+  scrollToMonth?: (date: XDate) => void
 }
 
 type CalendarListItemState = {
@@ -86,7 +87,7 @@ class CalendarListItem extends Component<CalendarListItemProps, CalendarListItem
   };
 
   getCalendarStyle = memoize((width, height, style) => {
-    return [{width, height}, this.style.calendar, style];
+    return [{width, minHeight: height}, this.style.calendar, style];
   });
 
   render() {
@@ -100,6 +101,7 @@ class CalendarListItem extends Component<CalendarListItemProps, CalendarListItem
       headerStyle,
       onPressArrowLeft,
       onPressArrowRight,
+      // @ts-expect-error
       context
     } = this.props;
     const calendarProps = extractComponentProps(Calendar, this.props);
